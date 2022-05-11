@@ -1,3 +1,6 @@
+# ATTENTION BY Aoi-hosizora:
+# This requirements.txt has not beed tested.
+
 termcolor==1.1.0
 scipy==1.2.1
 tensorflow_gpu==1.14.0

@@ -8,6 +8,20 @@
 
 > Passed when 2022/01/12 and 2022/05/08.
 
++ Prepare environment
+
+```python
+%tensorflow_version 1.x
+!pip install tensorflow_model_optimization==0.1.1 scikit_image==0.15.0 h5py==2.10.0 --force-reinstall
+# RESTART RUNTIME
+%tensorflow_version 1.x
+import tensorflow as tf
+print(tf.__version__)
+# 1.15.2
+```
+
++ Model training and compiling
+
 ```bash
 # Generate xxx_img_ann.npy
 python make_voc_list.py datasets/test_20220501/train.txt data/test_20220501_img_ann.npy
