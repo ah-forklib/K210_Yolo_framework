@@ -62,6 +62,7 @@ class Helper(object):
             self.test_list = None
         else:
             img_ann_list = np.load(image_ann, allow_pickle=True)
+            np.random.shuffle(img_ann_list)
             num = int(len(img_ann_list) * self.validation_split)
             self.train_list = img_ann_list[num:]  # type:np.ndarray
             self.test_list = img_ann_list[:num]  # type:np.ndarray
@@ -399,7 +400,8 @@ class Helper(object):
             img = skimage.transform.warp(img, aff.inverse, output_shape=self.in_hw[0], preserve_range=True).astype('uint8')
 
         if is_training:
-            img, true_box = self.data_augmenter(img, true_box)
+            pass
+            # img, true_box = self.data_augmenter(img, true_box) <<<<<<<<<<<<<<<<<<<<<<<<<
 
         # normlize image
         img = img / np.max(img)
@@ -419,7 +421,7 @@ class Helper(object):
 
         def _dataset_parser(img_path: str, true_box: np.ndarray):
             img = self._read_img(img_path.numpy().decode())
-            img, true_box = self._process_img(img, true_box, is_training, is_resize)
+            img, true_box = self._process_img(img, true_box, is_training, is_resize) # is_training <- data_augment
             labels = self.box_to_label(true_box)
             return (img.astype('float32'), *labels)
 
@@ -436,14 +438,15 @@ class Helper(object):
                     yield img_path, np.copy(true_box)
 
         dataset = (tf.data.Dataset.from_generator(gen, (tf.framework_ops.dtypes.string, tf.float32), ([], [None, 5])).
-                   shuffle(batch_size * 500 if is_training == True else batch_size * 50, rand_seed).repeat().
+                   # shuffle(batch_size * 500 if is_training == True else batch_size * 50, rand_seed).repeat().
+                   shuffle(self.train_total_data if is_training == True else self.test_total_data, rand_seed).repeat().
                    map(_parser_wrapper, tf.data.experimental.AUTOTUNE).
                    batch(batch_size, True).prefetch(tf.data.experimental.AUTOTUNE))
 
         return dataset
 
-    def set_dataset(self, batch_size, rand_seed, is_training=True, is_resize=True):
-        self.train_dataset = self._create_dataset(self.train_list, batch_size, rand_seed, is_training, is_resize)
+    def set_dataset(self, batch_size, rand_seed, data_augment=True, is_resize=True):
+        self.train_dataset = self._create_dataset(self.train_list, batch_size, rand_seed, data_augment, is_resize)
         self.test_dataset = self._create_dataset(self.test_list, batch_size, rand_seed, False, is_resize)
         self.batch_size = batch_size
         self.train_epoch_step = self.train_total_data // self.batch_size

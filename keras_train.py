@@ -14,6 +14,13 @@ import argparse
 from termcolor import colored
 from tensorflow_model_optimization.python.core.api.sparsity import keras as sparsity
 
+from tensorflow import enable_eager_execution
+enable_eager_execution()
+# from tensorflow.compat.v1 import disable_eager_execution
+# disable_eager_execution()
+# from tensorflow.python.framework.ops import disable_eager_execution
+# disable_eager_execution()
+
 config = tf.ConfigProto()
 config.gpu_options.allow_growth = True
 sess = tf.Session(config=config)
@@ -34,6 +41,7 @@ def main(args, train_set, class_num, pre_ckpt, model_def,
          is_prune, initial_sparsity, final_sparsity, end_epoch, frequency):
     # Build path
     log_dir = (Path(log_dir) / datetime.strftime(datetime.now(), '%Y%m%d-%H%M%S'))  # type: Path
+    print(INFO, 'log_dir:', log_dir)
     ckpt_weights = log_dir / 'yolo_weights.h5'
     ckpt = log_dir / 'yolo_model.h5'
     if not log_dir.exists():
@@ -43,7 +51,7 @@ def main(args, train_set, class_num, pre_ckpt, model_def,
     # Build utils
     h = Helper(f'data/{train_set}_img_ann.npy', class_num, f'data/{train_set}_anchor.npy',
                np.reshape(np.array(image_size), (-1, 2)), np.reshape(np.array(output_size), (-1, 2)), vaildation_split)
-    h.set_dataset(batch_size, rand_seed, is_training=(is_augmenter == 'True'))
+    h.set_dataset(batch_size, rand_seed, data_augment=(is_augmenter == 'True'))
 
     # Build network
     network = eval(model_def)  # type :yolo_mobilev2
@@ -95,7 +103,7 @@ def main(args, train_set, class_num, pre_ckpt, model_def,
     try:
         train_model.fit(h.train_dataset, epochs=max_nrof_epochs,
                         steps_per_epoch=h.train_epoch_step, callbacks=cbs,
-                        validation_data=h.test_dataset, validation_steps=int(h.test_epoch_step * h.validation_split))
+                        validation_data=h.test_dataset, validation_steps=h.train_epoch_step) # int(h.test_epoch_step * h.validation_split))
     except KeyboardInterrupt as e:
         pass
 

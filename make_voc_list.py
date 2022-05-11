@@ -3,7 +3,7 @@ import re
 import numpy as np
 import sys
 import argparse
-import skimage
+import skimage.io
 
 
 def main(train_file: str, output_file: str):
@@ -13,7 +13,8 @@ def main(train_file: str, output_file: str):
         os.makedirs('data')
 
     ann_list = list(image_path_list)
-    ann_list = [re.sub(r'JPEGImages', 'labels', s) for s in ann_list]
+    # ann_list = [re.sub(r'JPEGImages', 'labels', s) for s in ann_list]
+    ann_list = [re.sub(r'images', 'labels', s) for s in ann_list]
     ann_list = [re.sub(r'.jpg', '.txt', s) for s in ann_list]
 
     lines = np.array([

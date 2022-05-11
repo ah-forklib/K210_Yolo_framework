@@ -1,13 +1,18 @@
+### Editor ###
+.vscode/
+.ionide/
+.history/
+.idea/
+
+### Project ###
+__pycache__/
 .pytest_cache
-.vscode
 *.pyc
-log
-data/*
-!data/voc_anchors.list
-test/*
-!test/test_func.py
-tmp
+log/
+
+### Model ###
+*.npy
+*.h5
 *.pb
 *.tflite
 *.kmodel
-test
