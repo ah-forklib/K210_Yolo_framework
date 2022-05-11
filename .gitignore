@@ -9,6 +9,7 @@ __pycache__/
 .pytest_cache
 *.pyc
 log/
+datasets/
 
 ### Model ###
 *.npy
@@ -16,3 +17,8 @@ log/
 *.pb
 *.tflite
 *.kmodel
+
+### Temp
+useless/
+run_model.py
+run_model_old.py
